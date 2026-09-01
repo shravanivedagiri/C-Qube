@@ -131,15 +131,15 @@ class StudentState extends ChangeNotifier {
     await refreshClubs(student);
   }
 
-  Future<void> toggleFollowClub(String clubId, String studentId) async {
-    await _clubRepository.toggleFollowClub(clubId, studentId);
-    _allClubs = await _clubRepository.getAllClubs();
+  Future<void> loadAllEvents() async {
+    _allEvents = await _eventRepository.getAllEvents();
+    _upcomingEvents = await _eventRepository.getUpcomingEvents();
     notifyListeners();
   }
 
-  Future<void> toggleLikePost(String postId, String studentId) async {
-    await _postRepository.toggleLikePost(postId, studentId);
-    _feedPosts = await _postRepository.getFeedPosts();
+  Future<void> toggleFollowClub(String clubId, String studentId) async {
+    await _clubRepository.toggleFollowClub(clubId, studentId);
+    _allClubs = await _clubRepository.getAllClubs();
     notifyListeners();
   }
 

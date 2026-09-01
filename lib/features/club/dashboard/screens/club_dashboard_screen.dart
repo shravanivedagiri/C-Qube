@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:c_qube/core/constants/app_colors.dart';
 import 'package:c_qube/core/constants/app_typography.dart';
+import 'package:c_qube/models/club_model.dart';
 import 'package:c_qube/shared/widgets/tag_chip.dart';
 import 'package:c_qube/state/auth_state.dart';
 import 'package:c_qube/state/club_state.dart';
@@ -9,7 +11,7 @@ import 'package:c_qube/features/club/dashboard/widgets/club_drawer.dart';
 import 'package:c_qube/features/club/activity/screens/club_activity_tab.dart';
 import 'package:c_qube/features/club/gallery/screens/club_gallery_screen.dart';
 import 'package:c_qube/features/club/profile/screens/edit_club_profile_screen.dart';
-import 'package:c_qube/features/student/calendar/screens/student_calendar_screen.dart';
+import 'package:c_qube/features/welcome/screens/role_selection_screen.dart';
 
 class ClubDashboardScreen extends StatefulWidget {
   const ClubDashboardScreen({super.key});
@@ -22,6 +24,51 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void _showBannerPreviewDialog(BuildContext context, ClubModel club, String imagePath) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Banner Image Preview', style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AspectRatio(
+                aspectRatio: 16 / 7,
+                child: Image.network(imagePath, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Image.asset(imagePath, fit: BoxFit.cover)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Confirm updating club banner photo?',
+              style: AppTypography.bodyMedium,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final clubState = Provider.of<ClubState>(context, listen: false);
+              final authState = Provider.of<AuthState>(context, listen: false);
+              final updated = club.copyWith(bannerUrl: imagePath);
+              await clubState.updateClubProfile(updated);
+              authState.updateCurrentClub(updated);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary, foregroundColor: Colors.white),
+            child: const Text('Save & Update Banner'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -83,26 +130,37 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen>
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.calendar_month_rounded),
-            tooltip: 'Global Campus Calendar',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const StudentCalendarScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Edit Club Profile',
-            onPressed: () {
+          GestureDetector(
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => EditClubProfileScreen(club: club)),
               );
             },
+            child: CircleAvatar(
+              radius: 16,
+              backgroundImage: NetworkImage(
+                club.logoUrl.isNotEmpty
+                    ? club.logoUrl
+                    : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&q=80',
+              ),
+            ),
           ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, color: AppColors.error),
+            tooltip: 'Logout',
+            onPressed: () async {
+              await authState.logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+                  (route) => false,
+                );
+              }
+            },
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: NestedScrollView(
@@ -125,6 +183,10 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen>
                                 ? club.bannerUrl
                                 : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
                             fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: AppColors.primary.withValues(alpha: 0.2),
+                              child: const Icon(Icons.image_outlined, size: 40, color: AppColors.primary),
+                            ),
                           ),
                         ),
                       ),
@@ -132,13 +194,14 @@ class _ClubDashboardScreenState extends State<ClubDashboardScreen>
                         top: 10,
                         right: 10,
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => EditClubProfileScreen(club: club)),
-                            );
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final picked = await picker.pickImage(source: ImageSource.gallery);
+                            if (picked != null && context.mounted) {
+                              _showBannerPreviewDialog(context, club, picked.path);
+                            }
                           },
-                          icon: const Icon(Icons.edit, size: 14),
+                          icon: const Icon(Icons.photo_camera_rounded, size: 14),
                           label: const Text('Edit Banner'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black.withValues(alpha: 0.75),

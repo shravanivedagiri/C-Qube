@@ -5,7 +5,6 @@ abstract class PostRepository {
   Future<List<PostModel>> getFeedPosts();
   Future<List<PostModel>> getClubPosts(String clubId);
   Future<PostModel> createPost(PostModel post);
-  Future<void> toggleLikePost(String postId, String studentId);
   Future<void> deletePost(String postId);
 }
 
@@ -31,23 +30,6 @@ class MockPostRepository implements PostRepository {
     await Future.delayed(const Duration(milliseconds: 250));
     _store.posts.insert(0, post);
     return post;
-  }
-
-  @override
-  Future<void> toggleLikePost(String postId, String studentId) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    final index = _store.posts.indexWhere((p) => p.id == postId);
-    if (index != -1) {
-      final post = _store.posts[index];
-      final isLiked = post.likedStudentIds.contains(studentId);
-      final updatedLiked = List<String>.from(post.likedStudentIds);
-      if (isLiked) {
-        updatedLiked.remove(studentId);
-      } else {
-        updatedLiked.add(studentId);
-      }
-      _store.posts[index] = post.copyWith(likedStudentIds: updatedLiked);
-    }
   }
 
   @override

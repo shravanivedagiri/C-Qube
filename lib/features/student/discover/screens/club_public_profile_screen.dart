@@ -5,6 +5,8 @@ import 'package:c_qube/core/constants/app_constants.dart';
 import 'package:c_qube/core/constants/app_typography.dart';
 import 'package:c_qube/core/utils/date_formatter.dart';
 import 'package:c_qube/models/club_model.dart';
+import 'package:c_qube/models/club_join_request_model.dart';
+import 'package:c_qube/models/notification_model.dart';
 import 'package:c_qube/models/post_model.dart';
 import 'package:c_qube/models/recruitment_model.dart';
 import 'package:c_qube/repositories/recruitment_repository.dart';
@@ -12,7 +14,6 @@ import 'package:c_qube/shared/widgets/tag_chip.dart';
 import 'package:c_qube/shared/widgets/event_card.dart';
 import 'package:c_qube/shared/widgets/empty_state_view.dart';
 import 'package:c_qube/shared/widgets/custom_button.dart';
-import 'package:c_qube/shared/widgets/custom_text_field.dart';
 import 'package:c_qube/state/auth_state.dart';
 import 'package:c_qube/state/student_state.dart';
 import 'package:c_qube/services/mock_data_store.dart';
@@ -127,13 +128,66 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
                         ),
                         child: Text(isFollowing ? 'Following' : '+ Follow'),
                       ),
-                      if (isMember) ...[
-                        const SizedBox(width: 8),
-                        const TagChip(
-                          label: 'Member ✓',
-                          color: AppColors.success,
-                        ),
-                      ],
+                      const SizedBox(width: 8),
+                      Builder(
+                        builder: (context) {
+                          if (isMember) {
+                            return const TagChip(
+                              label: 'Member ✓',
+                              color: AppColors.success,
+                            );
+                          }
+                          final hasClaim = store.clubJoinRequests.any(
+                            (r) => r.clubId == _club.id && r.studentId == (student?.id ?? '') && r.status == ClubJoinRequestStatus.pending,
+                          );
+                          if (hasClaim) {
+                            return const TagChip(
+                              label: 'Claim Pending ⏳',
+                              color: AppColors.warning,
+                            );
+                          }
+                          return ElevatedButton.icon(
+                            onPressed: () {
+                              if (student == null) return;
+                              final claim = ClubJoinRequest(
+                                id: 'req_${DateTime.now().millisecondsSinceEpoch}',
+                                clubId: _club.id,
+                                clubName: _club.name,
+                                studentId: student.id,
+                                studentName: student.name,
+                                studentEmail: student.email,
+                                studentDepartment: student.department,
+                                status: ClubJoinRequestStatus.pending,
+                              );
+                              store.clubJoinRequests.add(claim);
+                              store.notifications.insert(0, NotificationModel(
+                                id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+                                userId: _club.id,
+                                type: NotificationType.club,
+                                title: 'New Membership Claim',
+                                body: '${student.name} claimed membership in ${_club.name}.',
+                                referenceId: claim.id,
+                                createdAt: DateTime.now(),
+                              ));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Membership claim sent to Club Head for approval!'),
+                                  backgroundColor: AppColors.success,
+                                ),
+                              );
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.verified_user_outlined, size: 14),
+                            label: const Text('Claim Membership'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              textStyle: AppTypography.labelSmall,
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -316,12 +370,11 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
                                   ? 'Application Submitted ✓'
                                   : (drive.isOpen ? 'Apply for Recruitment Drive' : 'Drive Closed'),
                               variant: hasApplied ? ButtonVariant.success : ButtonVariant.primary,
-                              isDisabled: hasApplied || !drive.isOpen || student == null,
-                              onPressed: () {
-                                if (student != null) {
-                                  _showApplyModal(context, drive, student);
-                                }
-                              },
+                              onPressed: (hasApplied || !drive.isOpen || student == null)
+                                  ? null
+                                  : () {
+                                      _showApplyModal(context, drive, student);
+                                    },
                             ),
                           ],
                         ),
@@ -416,8 +469,6 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
   }
 
   Widget _buildPostCard(PostModel post, bool isDark, String studentId) {
-    final isLiked = post.isLikedBy(studentId);
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -460,54 +511,16 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
             const SizedBox(height: 12),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(post.imageUrl, fit: BoxFit.cover),
-            ),
-          ],
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              InkWell(
-                onTap: () {
-                  final studentState = Provider.of<StudentState>(context, listen: false);
-                  studentState.toggleLikePost(post.id, studentId);
-                  setState(() {});
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      size: 18,
-                      color: isLiked ? AppColors.error : (isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      '${post.likesCount}',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                  ],
+              child: Image.network(
+                post.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  child: const Icon(Icons.image_outlined, color: AppColors.primary),
                 ),
               ),
-              const SizedBox(width: 20),
-              Row(
-                children: [
-                  Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 18,
-                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    '${post.commentsCount}',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ],
       ),
     );
@@ -515,10 +528,6 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
 
   void _showApplyModal(BuildContext context, RecruitmentDrive drive, dynamic student) {
     String selectedPosition = drive.openPositions.isNotEmpty ? drive.openPositions.first : 'Member';
-    final questionText = drive.questions.isNotEmpty
-        ? drive.questions.first
-        : 'Why do you want to join ${_club.name}?';
-    final answerController = TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -565,21 +574,13 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
                     Text('Select Position', style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: selectedPosition,
+                      initialValue: selectedPosition,
                       items: drive.openPositions
                           .map((pos) => DropdownMenuItem(value: pos, child: Text(pos)))
                           .toList(),
                       onChanged: (v) {
                         if (v != null) setModalState(() => selectedPosition = v);
                       },
-                    ),
-                    const SizedBox(height: 16),
-
-                    CustomTextField(
-                      label: questionText,
-                      hintText: 'Share your background and interest...',
-                      controller: answerController,
-                      maxLines: 3,
                     ),
                     const SizedBox(height: 24),
 
@@ -601,11 +602,6 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
                             studentDepartment: student.department,
                             studentYear: student.year,
                             positionApplied: selectedPosition,
-                            answers: {
-                              questionText: answerController.text.trim().isNotEmpty
-                                  ? answerController.text.trim()
-                                  : 'Enthusiastic about contributing to the team.',
-                            },
                           ),
                         );
 

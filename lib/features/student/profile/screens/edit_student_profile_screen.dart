@@ -4,7 +4,6 @@ import 'package:c_qube/core/constants/app_colors.dart';
 import 'package:c_qube/core/constants/app_constants.dart';
 import 'package:c_qube/core/constants/app_typography.dart';
 import 'package:c_qube/models/user_model.dart';
-import 'package:c_qube/models/club_model.dart';
 import 'package:c_qube/models/club_join_request_model.dart';
 import 'package:c_qube/shared/widgets/custom_button.dart';
 import 'package:c_qube/shared/widgets/custom_text_field.dart';

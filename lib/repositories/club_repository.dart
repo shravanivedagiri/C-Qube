@@ -2,6 +2,7 @@ import '../core/constants/app_constants.dart';
 import '../models/club_model.dart';
 import '../models/user_model.dart';
 import '../models/club_join_request_model.dart';
+import '../models/notification_model.dart';
 import '../services/mock_data_store.dart';
 
 abstract class ClubRepository {
@@ -250,6 +251,27 @@ class MockClubRepository implements ClubRepository {
             }
           }
         }
+        // Add notification for the student
+        _store.notifications.insert(0, NotificationModel(
+          id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+          userId: req.studentId,
+          type: NotificationType.club,
+          title: 'Membership Claim Approved! 🎉',
+          body: 'Your membership claim for ${req.clubName} has been approved by the club coordinator.',
+          referenceId: req.clubId,
+          createdAt: DateTime.now(),
+        ));
+      } else {
+        // Add rejection notification for the student
+        _store.notifications.insert(0, NotificationModel(
+          id: 'notif_${DateTime.now().millisecondsSinceEpoch}',
+          userId: req.studentId,
+          type: NotificationType.club,
+          title: 'Membership Claim Update',
+          body: 'Your membership claim for ${req.clubName} was not approved.',
+          referenceId: req.clubId,
+          createdAt: DateTime.now(),
+        ));
       }
     }
   }

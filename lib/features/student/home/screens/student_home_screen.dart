@@ -364,8 +364,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   }
 
   Widget _buildPostCard(PostModel post, bool isDark, String studentId, StudentState studentState) {
-    final isLiked = post.isLikedBy(studentId);
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -409,38 +407,18 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             const SizedBox(height: 10),
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(post.imageUrl, height: 160, width: double.infinity, fit: BoxFit.cover),
-            ),
-          ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              InkWell(
-                onTap: () {
-                  studentState.toggleLikePost(post.id, studentId);
-                },
-                child: Row(
-                  children: [
-                    Icon(
-                      isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      size: 18,
-                      color: isLiked ? AppColors.error : (isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary),
-                    ),
-                    const SizedBox(width: 6),
-                    Text('${post.likesCount}', style: AppTypography.labelSmall),
-                  ],
+              child: Image.network(
+                post.imageUrl,
+                height: 160,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  child: const Icon(Icons.image_outlined, color: AppColors.primary),
                 ),
               ),
-              const SizedBox(width: 20),
-              Row(
-                children: [
-                  const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: AppColors.secondary),
-                  const SizedBox(width: 6),
-                  Text('${post.commentsCount}', style: AppTypography.labelSmall),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ],
       ),
     );

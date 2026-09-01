@@ -37,6 +37,7 @@ abstract class AuthRepository {
     required String contactInfo,
     required Map<String, String> socialLinks,
   });
+  Future<void> resetPassword(String email);
   Future<void> logout();
   UserModel? getCurrentStudent();
   ClubModel? getCurrentClub();
@@ -164,6 +165,11 @@ class MockAuthRepository implements AuthRepository {
       return updated;
     }
     throw Exception('Club not found');
+  }
+
+  @override
+  Future<void> resetPassword(String email) async {
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   @override

@@ -24,8 +24,6 @@ class _CreateRecruitmentScreenState extends State<CreateRecruitmentScreen> {
   final _positionsController = TextEditingController(text: 'App Dev Lead, UI/UX Lead, PR Coordinator');
   final _eligibilityController = TextEditingController(text: 'Open to 1st, 2nd, and 3rd Year Students');
   final _skillsController = TextEditingController(text: 'Flutter, Figma, Leadership, Communication');
-  final _question1Controller = TextEditingController(text: 'Why do you want to join our core team?');
-  final _question2Controller = TextEditingController(text: 'Share links to your previous projects or portfolio.');
 
   DateTime _deadline = DateTime.now().add(const Duration(days: 14));
   final String _bannerUrl = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80';
@@ -37,8 +35,6 @@ class _CreateRecruitmentScreenState extends State<CreateRecruitmentScreen> {
     _positionsController.dispose();
     _eligibilityController.dispose();
     _skillsController.dispose();
-    _question1Controller.dispose();
-    _question2Controller.dispose();
     super.dispose();
   }
 
@@ -63,11 +59,6 @@ class _CreateRecruitmentScreenState extends State<CreateRecruitmentScreen> {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final questions = [
-      if (_question1Controller.text.isNotEmpty) _question1Controller.text.trim(),
-      if (_question2Controller.text.isNotEmpty) _question2Controller.text.trim(),
-    ];
-
     final newDrive = RecruitmentDrive(
       id: 'rec_${DateTime.now().millisecondsSinceEpoch}',
       clubId: club.id,
@@ -78,7 +69,6 @@ class _CreateRecruitmentScreenState extends State<CreateRecruitmentScreen> {
       eligibility: _eligibilityController.text.trim(),
       skillsRequired: skillsRequired,
       deadline: _deadline,
-      questions: questions,
       bannerUrl: _bannerUrl,
     );
 
@@ -177,21 +167,6 @@ class _CreateRecruitmentScreenState extends State<CreateRecruitmentScreen> {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-
-              Text('Applicant Questionnaire', style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 10),
-              CustomTextField(
-                label: 'Custom Question 1',
-                hintText: 'e.g. Why do you want to join our team?',
-                controller: _question1Controller,
-              ),
-              const SizedBox(height: 14),
-              CustomTextField(
-                label: 'Custom Question 2',
-                hintText: 'e.g. Share links to your past projects or GitHub',
-                controller: _question2Controller,
               ),
               const SizedBox(height: 32),
 

@@ -6,6 +6,9 @@ import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
 import '../widgets/auth_header.dart';
 
+import 'package:provider/provider.dart';
+import '../../../state/auth_state.dart';
+
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -24,9 +27,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _submitted = true);
+    final authState = Provider.of<AuthState>(context, listen: false);
+    await authState.resetPassword(_emailController.text.trim());
+    if (mounted) {
+      setState(() => _submitted = true);
+    }
   }
 
   @override

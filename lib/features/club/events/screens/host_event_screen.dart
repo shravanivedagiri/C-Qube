@@ -10,6 +10,7 @@ import 'package:c_qube/shared/widgets/custom_button.dart';
 import 'package:c_qube/shared/widgets/custom_text_field.dart';
 import 'package:c_qube/state/auth_state.dart';
 import 'package:c_qube/state/club_state.dart';
+import 'package:c_qube/state/student_state.dart';
 
 class HostEventScreen extends StatefulWidget {
   const HostEventScreen({super.key});
@@ -89,13 +90,18 @@ class _HostEventScreenState extends State<HostEventScreen> {
     await clubState.createEvent(newEvent);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Event "${newEvent.title}" published to Campus Calendar!'),
-          backgroundColor: AppColors.success,
-        ),
-      );
-      Navigator.pop(context);
+      final studentState = Provider.of<StudentState>(context, listen: false);
+      await studentState.loadAllEvents();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Event "${newEvent.title}" published to Campus Calendar!'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        Navigator.pop(context);
+      }
     }
   }
 

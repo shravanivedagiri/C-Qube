@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:c_qube/core/constants/app_colors.dart';
 import 'package:c_qube/core/constants/app_constants.dart';
 import 'package:c_qube/core/constants/app_typography.dart';
@@ -108,11 +109,53 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
               const SizedBox(height: 18),
 
-              CustomTextField(
-                label: 'Photo Image URL',
-                hintText: 'https://...',
-                controller: _imageUrlController,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: CustomTextField(
+                      label: 'Photo Image URL / File',
+                      hintText: 'https://...',
+                      controller: _imageUrlController,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(source: ImageSource.gallery);
+                      if (picked != null) {
+                        setState(() => _imageUrlController.text = picked.path);
+                      }
+                    },
+                    icon: const Icon(Icons.photo_library, size: 18),
+                    label: const Text('Pick Image'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    ),
+                  ),
+                ],
               ),
+              if (_imageUrlController.text.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: 140,
+                    width: double.infinity,
+                    color: Colors.black12,
+                    child: Image.network(
+                      _imageUrlController.text,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Center(
+                        child: Icon(Icons.image_outlined, size: 40, color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 32),
 
               CustomButton(

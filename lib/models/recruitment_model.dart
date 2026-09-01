@@ -10,7 +10,6 @@ class RecruitmentDrive {
   final String eligibility;
   final List<String> skillsRequired;
   final DateTime deadline;
-  final List<String> questions;
   final String bannerUrl;
   final bool isOpen;
   final int applicantCount;
@@ -26,7 +25,6 @@ class RecruitmentDrive {
     this.eligibility = 'Open to all years',
     this.skillsRequired = const [],
     required this.deadline,
-    this.questions = const [],
     this.bannerUrl = '',
     this.isOpen = true,
     this.applicantCount = 0,
@@ -45,7 +43,6 @@ class RecruitmentDrive {
     String? eligibility,
     List<String>? skillsRequired,
     DateTime? deadline,
-    List<String>? questions,
     String? bannerUrl,
     bool? isOpen,
     int? applicantCount,
@@ -61,7 +58,6 @@ class RecruitmentDrive {
       eligibility: eligibility ?? this.eligibility,
       skillsRequired: skillsRequired ?? this.skillsRequired,
       deadline: deadline ?? this.deadline,
-      questions: questions ?? this.questions,
       bannerUrl: bannerUrl ?? this.bannerUrl,
       isOpen: isOpen ?? this.isOpen,
       applicantCount: applicantCount ?? this.applicantCount,
@@ -82,7 +78,6 @@ class RecruitmentApplication {
   final String studentDepartment;
   final String studentYear;
   final String positionApplied;
-  final Map<String, String> answers;
   final ApplicationStatus status;
   final String notes;
   final DateTime submittedAt;
@@ -99,7 +94,6 @@ class RecruitmentApplication {
     required this.studentDepartment,
     required this.studentYear,
     required this.positionApplied,
-    required this.answers,
     this.status = ApplicationStatus.applied,
     this.notes = '',
     DateTime? submittedAt,
@@ -117,7 +111,6 @@ class RecruitmentApplication {
     String? studentDepartment,
     String? studentYear,
     String? positionApplied,
-    Map<String, String>? answers,
     ApplicationStatus? status,
     String? notes,
     DateTime? submittedAt,
@@ -134,7 +127,6 @@ class RecruitmentApplication {
       studentDepartment: studentDepartment ?? this.studentDepartment,
       studentYear: studentYear ?? this.studentYear,
       positionApplied: positionApplied ?? this.positionApplied,
-      answers: answers ?? this.answers,
       status: status ?? this.status,
       notes: notes ?? this.notes,
       submittedAt: submittedAt ?? this.submittedAt,

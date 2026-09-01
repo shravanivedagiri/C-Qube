@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:c_qube/core/constants/app_colors.dart';
 import 'package:c_qube/core/constants/app_constants.dart';
 import 'package:c_qube/core/constants/app_typography.dart';
@@ -105,19 +106,28 @@ class _EditClubProfileScreenState extends State<EditClubProfileScreen> {
                     borderRadius: BorderRadius.circular(14),
                     child: AspectRatio(
                       aspectRatio: 16 / 7,
-                      child: Image.network(_bannerUrl, fit: BoxFit.cover),
+                      child: Image.network(
+                        _bannerUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          child: const Icon(Icons.image_outlined, size: 40, color: AppColors.primary),
+                        ),
+                      ),
                     ),
                   ),
                   Positioned(
                     bottom: 10,
                     right: 10,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _bannerUrl = _bannerUrl.contains('522071820081')
-                              ? 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80'
-                              : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80';
-                        });
+                      onPressed: () async {
+                        final picker = ImagePicker();
+                        final picked = await picker.pickImage(source: ImageSource.gallery);
+                        if (picked != null) {
+                          setState(() {
+                            _bannerUrl = picked.path;
+                          });
+                        }
                       },
                       icon: const Icon(Icons.camera_alt_outlined, size: 16),
                       label: const Text('Change Banner'),
