@@ -128,12 +128,12 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
 
                 // Email
                 CustomTextField(
-                  label: 'College Email ID',
-                  hintText: 'e.g. rahul@campus.edu',
+                  label: 'College Email ID (@bmsce.sc.in)',
+                  hintText: 'e.g. student@bmsce.sc.in',
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
-                  validator: ValidatorUtils.validateEmail,
+                  validator: ValidatorUtils.validateStudentEmail,
                 ),
                 const SizedBox(height: 18),
 

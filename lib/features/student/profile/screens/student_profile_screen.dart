@@ -141,6 +141,28 @@ class StudentProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
+            // Official Approved Joined Clubs Section
+            if (student.joinedClubIds.isNotEmpty) ...[
+              Text('Joined Campus Clubs', style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: studentState.allClubs
+                    .where((c) => student.joinedClubIds.contains(c.id))
+                    .map((club) => Chip(
+                          avatar: CircleAvatar(
+                            backgroundImage: club.logoUrl.isNotEmpty ? NetworkImage(club.logoUrl) : null,
+                            child: club.logoUrl.isEmpty ? Text(club.name[0]) : null,
+                          ),
+                          label: Text(club.name, style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600)),
+                          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                        ))
+                    .toList(),
+              ),
+              const SizedBox(height: 20),
+            ],
+
             // Bio & Goals
             if (student.bio.isNotEmpty) ...[
               Text('About Me', style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700)),

@@ -69,10 +69,14 @@ class MockAuthRepository implements AuthRepository {
     required String bio,
   }) async {
     await Future.delayed(const Duration(milliseconds: 400));
+    final trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail.endsWith('@bmsce.sc.in')) {
+      throw Exception('Please register using your official BMSCE email address (@bmsce.sc.in).');
+    }
     final newStudent = UserModel(
       id: 'student_${DateTime.now().millisecondsSinceEpoch}',
       name: name,
-      email: email,
+      email: trimmedEmail,
       role: UserRole.student,
       department: department,
       year: year,

@@ -9,6 +9,7 @@ import 'package:c_qube/features/welcome/screens/role_selection_screen.dart';
 import 'package:c_qube/features/club/events/screens/club_events_screen.dart';
 import 'package:c_qube/features/club/gallery/screens/club_gallery_screen.dart';
 import 'package:c_qube/features/club/recruitment/screens/club_recruitment_screen.dart';
+import 'package:c_qube/features/club/recruitment/screens/club_join_requests_screen.dart';
 import 'package:c_qube/features/club/analytics/screens/club_analytics_screen.dart';
 import 'package:c_qube/features/club/profile/screens/edit_club_profile_screen.dart';
 
@@ -91,6 +92,14 @@ class ClubDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const ClubRecruitmentScreen()));
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.how_to_reg_rounded, color: AppColors.primary),
+                  title: const Text('Club Join Requests'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ClubJoinRequestsScreen()));
                   },
                 ),
                 ListTile(
