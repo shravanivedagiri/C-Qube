@@ -5,6 +5,7 @@ import '../models/event_model.dart';
 import '../models/post_model.dart';
 import '../models/friend_model.dart';
 import '../models/genie_message_model.dart';
+import '../models/club_join_request_model.dart';
 import '../repositories/club_repository.dart';
 import '../repositories/event_repository.dart';
 import '../repositories/post_repository.dart';
@@ -30,6 +31,7 @@ class StudentState extends ChangeNotifier {
   List<UserModel> _pendingRequests = [];
   List<FriendActivityItem> _friendActivities = [];
   List<GenieMessageModel> _genieMessages = [];
+  List<ClubJoinRequest> _myJoinRequests = [];
   bool _isLoading = false;
 
   StudentState({
@@ -68,6 +70,7 @@ class StudentState extends ChangeNotifier {
   List<UserModel> get pendingRequests => _pendingRequests;
   List<FriendActivityItem> get friendActivities => _friendActivities;
   List<GenieMessageModel> get genieMessages => _genieMessages;
+  List<ClubJoinRequest> get myJoinRequests => _myJoinRequests;
   bool get isLoading => _isLoading;
 
   Future<void> loadDashboardData(UserModel student) async {
@@ -95,6 +98,7 @@ class StudentState extends ChangeNotifier {
       _friends = results[6] as List<UserModel>;
       _friendActivities = results[7] as List<FriendActivityItem>;
       _pendingRequests = _allStudents.where((s) => s.id == 'user_std_002').toList();
+      _myJoinRequests = await _clubRepository.getStudentJoinRequests(student.id);
     } catch (e) {
       debugPrint('Error loading student dashboard: $e');
     } finally {
@@ -165,5 +169,26 @@ class StudentState extends ChangeNotifier {
     await _genieRepository.sendMessage(query);
     _genieMessages = await _genieRepository.getConversationHistory();
     notifyListeners();
+  }
+
+  Future<void> loadMyJoinRequests(String studentId) async {
+    _myJoinRequests = await _clubRepository.getStudentJoinRequests(studentId);
+    notifyListeners();
+  }
+
+  Future<void> submitClubJoinRequest({
+    required String clubId,
+    required String clubName,
+    required UserModel student,
+  }) async {
+    await _clubRepository.submitJoinRequest(
+      clubId: clubId,
+      clubName: clubName,
+      studentId: student.id,
+      studentName: student.name,
+      studentEmail: student.email,
+      studentDepartment: student.department,
+    );
+    await loadMyJoinRequests(student.id);
   }
 }

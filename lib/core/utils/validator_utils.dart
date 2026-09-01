@@ -10,6 +10,21 @@ class ValidatorUtils {
     return null;
   }
 
+  static String? validateStudentEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Email is required';
+    }
+    final email = value.trim().toLowerCase();
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      return 'Enter a valid email address';
+    }
+    if (!email.endsWith('@bmsce.sc.in')) {
+      return 'Please register using your official BMSCE email address (@bmsce.sc.in).';
+    }
+    return null;
+  }
+
   static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password is required';

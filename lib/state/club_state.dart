@@ -7,6 +7,7 @@ import '../models/gallery_item_model.dart';
 import '../models/recruitment_model.dart';
 import '../models/analytics_model.dart';
 import '../models/user_model.dart';
+import '../models/club_join_request_model.dart';
 import '../repositories/club_repository.dart';
 import '../repositories/event_repository.dart';
 import '../repositories/post_repository.dart';
@@ -28,6 +29,7 @@ class ClubState extends ChangeNotifier {
   List<GalleryItemModel> _clubGallery = [];
   List<RecruitmentDrive> _clubDrives = [];
   List<RecruitmentApplication> _clubApplications = [];
+  List<ClubJoinRequest> _joinRequests = [];
   ClubAnalyticsModel? _analytics;
   bool _isLoading = false;
 
@@ -51,6 +53,7 @@ class ClubState extends ChangeNotifier {
   List<GalleryItemModel> get clubGallery => _clubGallery;
   List<RecruitmentDrive> get clubDrives => _clubDrives;
   List<RecruitmentApplication> get clubApplications => _clubApplications;
+  List<ClubJoinRequest> get joinRequests => _joinRequests;
   ClubAnalyticsModel? get analytics => _analytics;
   bool get isLoading => _isLoading;
 
@@ -79,6 +82,7 @@ class ClubState extends ChangeNotifier {
       _clubDrives = results[3] as List<RecruitmentDrive>;
       _clubApplications = results[4] as List<RecruitmentApplication>;
       _analytics = results[5] as ClubAnalyticsModel;
+      _joinRequests = await _clubRepository.getClubJoinRequests(clubId);
     } catch (e) {
       debugPrint('Error loading club data: $e');
     } finally {
@@ -135,5 +139,14 @@ class ClubState extends ChangeNotifier {
 
   Future<List<UserModel>> getEventParticipants(String eventId) async {
     return await _eventRepository.getEventParticipants(eventId);
+  }
+
+  Future<void> respondToJoinRequest(String requestId, bool approve) async {
+    await _clubRepository.respondToJoinRequest(requestId, approve);
+    if (_currentClub != null) {
+      _joinRequests = await _clubRepository.getClubJoinRequests(_currentClub!.id);
+      _currentClub = await _clubRepository.getClubById(_currentClub!.id);
+      notifyListeners();
+    }
   }
 }

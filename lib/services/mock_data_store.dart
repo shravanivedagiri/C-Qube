@@ -8,7 +8,7 @@ import '../models/recruitment_model.dart';
 import '../models/friend_model.dart';
 import '../models/notification_model.dart';
 import '../models/genie_message_model.dart';
-
+import '../models/club_join_request_model.dart';
 
 class MockDataStore {
   static final MockDataStore _instance = MockDataStore._internal();
@@ -21,6 +21,7 @@ class MockDataStore {
   List<UserModel> students = [];
   List<ClubModel> clubs = [];
   List<ClubRegistrationRequest> clubRequests = [];
+  List<ClubJoinRequest> clubJoinRequests = [];
   List<EventModel> events = [];
   List<PostModel> posts = [];
   List<GalleryItemModel> galleryItems = [];
