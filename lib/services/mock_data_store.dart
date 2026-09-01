@@ -373,9 +373,6 @@ class MockDataStore {
         content: 'We are thrilled to announce HackCampus 2026! Over \$10,000 in prize tracks, free food, swags and direct internship interviews with partner tech companies. Register before seats run out!',
         imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
         eventReferenceId: 'event_1',
-        likedStudentIds: ['student_1', 'student_2', 'student_3'],
-        commentsCount: 24,
-        sharesCount: 12,
         createdAt: now.subtract(const Duration(hours: 4)),
       ),
       PostModel(
@@ -387,9 +384,6 @@ class MockDataStore {
         title: 'AIRS Rover Team Takes 1st Place at State Robotics Cup!',
         content: 'Huge congratulations to our autonomous rover division for securing the Gold Trophy at the State Robotics Cup 2026! Proud moment for the college!',
         imageUrl: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?auto=format&fit=crop&w=800&q=80',
-        likedStudentIds: ['student_1', 'student_3', 'student_4'],
-        commentsCount: 38,
-        sharesCount: 19,
         createdAt: now.subtract(const Duration(hours: 18)),
       ),
       PostModel(
@@ -402,9 +396,6 @@ class MockDataStore {
         content: 'Grab your DSLRs, mirrorless cameras or smartphones and join us at the Clock Tower courtyard. Free presets and post-processing guide for all attendees.',
         imageUrl: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=800&q=80',
         eventReferenceId: 'event_3',
-        likedStudentIds: ['student_2', 'student_4'],
-        commentsCount: 9,
-        sharesCount: 5,
         createdAt: now.subtract(const Duration(days: 1)),
       ),
       PostModel(
@@ -416,9 +407,6 @@ class MockDataStore {
         title: 'GDSC Core Team Recruitment 2026-2027 Open!',
         content: 'Are you passionate about Mobile, Web, AI, Design or Event PR? Join the core leadership team of GDSC. Apply via the Recruitment tab!',
         imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
-        likedStudentIds: ['student_1', 'student_2'],
-        commentsCount: 15,
-        sharesCount: 8,
         createdAt: now.subtract(const Duration(days: 2)),
       ),
     ];
@@ -482,11 +470,6 @@ class MockDataStore {
         eligibility: '1st, 2nd & 3rd Year Students from any branch',
         skillsRequired: ['Flutter/Dart', 'Figma', 'JavaScript/TypeScript', 'Leadership'],
         deadline: now.add(const Duration(days: 7)),
-        questions: [
-          'Why do you want to join the GDSC core leadership team?',
-          'Share links to your GitHub / portfolio / previous projects.',
-          'Describe a difficult technical problem you solved recently.'
-        ],
         bannerUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
         applicantCount: 34,
       ),
@@ -500,10 +483,6 @@ class MockDataStore {
         eligibility: '2nd & 3rd Year Students',
         skillsRequired: ['SolidWorks/Fusion 360', 'C/C++', 'Arduino & ESP32'],
         deadline: now.add(const Duration(days: 12)),
-        questions: [
-          'What hardware projects or robots have you worked on?',
-          'How comfortable are you with soldering and rapid prototyping?'
-        ],
         bannerUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
         applicantCount: 19,
       ),
@@ -523,11 +502,6 @@ class MockDataStore {
         studentDepartment: 'Computer Science & Engineering',
         studentYear: '3rd Year',
         positionApplied: 'Mobile Dev Lead (Flutter)',
-        answers: {
-          'Why do you want to join the GDSC core leadership team?': 'I love mentoring juniors in Flutter and want to scale campus app projects.',
-          'Share links to your GitHub / portfolio / previous projects.': 'https://github.com/rahul-dev-campus',
-          'Describe a difficult technical problem you solved recently.': 'Architected offline caching with SQLite and riverpod state sync.'
-        },
         status: ApplicationStatus.shortlisted,
         notes: 'Strong portfolio and Flutter experience. Recommended for interview.',
       ),
@@ -543,11 +517,6 @@ class MockDataStore {
         studentDepartment: 'Information Technology',
         studentYear: '2nd Year',
         positionApplied: 'UI/UX Design Lead',
-        answers: {
-          'Why do you want to join the GDSC core leadership team?': 'To give our campus apps a cohesive and modern design system.',
-          'Share links to your GitHub / portfolio / previous projects.': 'https://behance.net/ananya-design',
-          'Describe a difficult technical problem you solved recently.': 'Designed complete design tokens for 15+ student screens.'
-        },
         status: ApplicationStatus.underReview,
         notes: 'Impressive Figma portfolio.',
       ),

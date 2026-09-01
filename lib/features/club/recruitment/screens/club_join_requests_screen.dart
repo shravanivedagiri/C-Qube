@@ -42,7 +42,7 @@ class _ClubJoinRequestsScreenState extends State<ClubJoinRequestsScreen> {
           ? const EmptyStateView(
               icon: Icons.how_to_reg_outlined,
               title: 'No Join Requests',
-              message: 'There are currently no student requests to join this club.',
+              description: 'There are currently no student requests to join this club.',
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -183,7 +183,6 @@ class _ClubJoinRequestsScreenState extends State<ClubJoinRequestsScreen> {
         text = 'REJECTED';
         break;
       case ClubJoinRequestStatus.pending:
-      default:
         color = AppColors.warning;
         text = 'PENDING';
         break;

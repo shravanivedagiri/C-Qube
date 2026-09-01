@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:c_qube/core/constants/app_colors.dart';
 import 'package:c_qube/core/constants/app_constants.dart';
 import 'package:c_qube/core/constants/app_typography.dart';
@@ -20,14 +21,12 @@ class _ClubGalleryScreenState extends State<ClubGalleryScreen> {
   void _showUploadDialog() {
     final titleController = TextEditingController();
     MediaType mediaType = MediaType.photo;
-    String sampleUrl = 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80';
+    String selectedPath = 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80';
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) {
-
-
           return AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             title: Text(
@@ -40,7 +39,7 @@ class _ClubGalleryScreenState extends State<ClubGalleryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomTextField(
-                    label: 'Media Caption / Title',
+                    label: 'Media Title / Caption',
                     hintText: 'e.g. Hackathon Demo Day 2026',
                     controller: titleController,
                   ),
@@ -54,24 +53,72 @@ class _ClubGalleryScreenState extends State<ClubGalleryScreen> {
                         selected: mediaType == MediaType.photo,
                         onSelected: (v) => setModalState(() {
                           mediaType = MediaType.photo;
-                          sampleUrl = 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80';
                         }),
                       ),
                       const SizedBox(width: 8),
                       ChoiceChip(
-                        label: const Text('🎬 Video Highlight'),
+                        label: const Text('🎬 Video'),
                         selected: mediaType == MediaType.video,
                         onSelected: (v) => setModalState(() {
                           mediaType = MediaType.video;
-                          sampleUrl = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80';
                         }),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            final picker = ImagePicker();
+                            final XFile? file = mediaType == MediaType.photo
+                                ? await picker.pickImage(source: ImageSource.gallery)
+                                : await picker.pickVideo(source: ImageSource.gallery);
+                            if (file != null) {
+                              setModalState(() {
+                                selectedPath = file.path;
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.file_upload_outlined),
+                          label: Text(mediaType == MediaType.photo ? 'Select Photo' : 'Select Video'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: Image.network(sampleUrl, height: 120, width: double.infinity, fit: BoxFit.cover),
+                    child: Container(
+                      height: 140,
+                      width: double.infinity,
+                      color: Colors.black12,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Image.network(
+                            selectedPath,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (_, __, ___) => Center(
+                              child: Icon(
+                                mediaType == MediaType.video ? Icons.video_library_outlined : Icons.image_outlined,
+                                size: 48,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                          if (mediaType == MediaType.video)
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                              child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 32),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -93,17 +140,17 @@ class _ClubGalleryScreenState extends State<ClubGalleryScreen> {
                       clubId: club.id,
                       title: titleController.text.trim().isNotEmpty
                           ? titleController.text.trim()
-                          : 'Club Memory',
-                      mediaUrl: sampleUrl,
+                          : (mediaType == MediaType.photo ? 'Club Photo' : 'Club Video'),
+                      mediaUrl: selectedPath,
                       mediaType: mediaType,
-                      thumbnailUrl: sampleUrl,
+                      thumbnailUrl: selectedPath,
                     );
                     await clubState.uploadGalleryItem(item);
                   }
                   if (ctx.mounted) Navigator.pop(ctx);
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary, foregroundColor: Colors.white),
-                child: const Text('Upload to Storage'),
+                child: const Text('Upload to Gallery'),
               ),
             ],
           );

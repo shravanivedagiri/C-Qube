@@ -226,30 +226,17 @@ class ClubActivityTab extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: AspectRatio(
                             aspectRatio: 16 / 9,
-                            child: Image.network(post.imageUrl, fit: BoxFit.cover),
+                            child: Image.network(
+                              post.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: AppColors.primary.withValues(alpha: 0.1),
+                                child: const Icon(Icons.image_outlined, color: AppColors.primary),
+                              ),
+                            ),
                           ),
                         ),
                       ],
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.favorite_rounded, size: 18, color: AppColors.error),
-                              const SizedBox(width: 6),
-                              Text('${post.likesCount} Likes', style: AppTypography.labelSmall),
-                            ],
-                          ),
-                          const SizedBox(width: 20),
-                          Row(
-                            children: [
-                              const Icon(Icons.chat_bubble_outline_rounded, size: 18, color: AppColors.secondary),
-                              const SizedBox(width: 6),
-                              Text('${post.commentsCount} Comments', style: AppTypography.labelSmall),
-                            ],
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:c_qube/core/constants/app_colors.dart';
+import 'package:c_qube/core/constants/app_constants.dart';
 import 'package:c_qube/core/constants/app_typography.dart';
 import 'package:c_qube/core/utils/date_formatter.dart';
 import 'package:c_qube/models/event_model.dart';
@@ -12,7 +13,12 @@ import 'package:c_qube/state/student_state.dart';
 import 'package:c_qube/features/student/events/screens/event_detail_screen.dart';
 
 class StudentCalendarScreen extends StatefulWidget {
-  const StudentCalendarScreen({super.key});
+  final bool isClubView;
+
+  const StudentCalendarScreen({
+    super.key,
+    this.isClubView = false,
+  });
 
   @override
   State<StudentCalendarScreen> createState() => _StudentCalendarScreenState();
@@ -30,8 +36,9 @@ class _StudentCalendarScreenState extends State<StudentCalendarScreen> {
     final studentState = Provider.of<StudentState>(context);
     final authState = Provider.of<AuthState>(context);
     final studentId = authState.currentStudent?.id ?? '';
+    final isClub = widget.isClubView || authState.activeRole == UserRole.club;
 
-    final baseEvents = _filterMyRegistrations
+    final baseEvents = (!isClub && _filterMyRegistrations)
         ? studentState.myRegisteredEvents
         : studentState.allEvents;
 
@@ -42,43 +49,44 @@ class _StudentCalendarScreenState extends State<StudentCalendarScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Campus Events Calendar'),
+        title: Text(isClub ? 'Club Campus Events Calendar' : 'Campus Events Calendar'),
       ),
       body: Column(
         children: [
-          // Filter Toggle: All Events vs My Registrations
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FilterChip(
-                    selected: !_filterMyRegistrations,
-                    label: Text(
-                      'All Campus Events (${studentState.allEvents.length})',
-                      style: AppTypography.labelSmall.copyWith(
-                        fontWeight: !_filterMyRegistrations ? FontWeight.bold : FontWeight.normal,
+          // Filter Toggle: All Events vs My Registrations (Only shown for Students)
+          if (!isClub)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FilterChip(
+                      selected: !_filterMyRegistrations,
+                      label: Text(
+                        'All Campus Events (${studentState.allEvents.length})',
+                        style: AppTypography.labelSmall.copyWith(
+                          fontWeight: !_filterMyRegistrations ? FontWeight.bold : FontWeight.normal,
+                        ),
                       ),
+                      onSelected: (v) => setState(() => _filterMyRegistrations = false),
                     ),
-                    onSelected: (v) => setState(() => _filterMyRegistrations = false),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FilterChip(
-                    selected: _filterMyRegistrations,
-                    label: Text(
-                      'My Registrations (${studentState.myRegisteredEvents.length})',
-                      style: AppTypography.labelSmall.copyWith(
-                        fontWeight: _filterMyRegistrations ? FontWeight.bold : FontWeight.normal,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilterChip(
+                      selected: _filterMyRegistrations,
+                      label: Text(
+                        'My Registrations (${studentState.myRegisteredEvents.length})',
+                        style: AppTypography.labelSmall.copyWith(
+                          fontWeight: _filterMyRegistrations ? FontWeight.bold : FontWeight.normal,
+                        ),
                       ),
+                      onSelected: (v) => setState(() => _filterMyRegistrations = true),
                     ),
-                    onSelected: (v) => setState(() => _filterMyRegistrations = true),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
           // TableCalendar Widget
           Container(

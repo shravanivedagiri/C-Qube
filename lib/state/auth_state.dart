@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/app_constants.dart';
 import '../models/user_model.dart';
 import '../models/club_model.dart';
@@ -15,11 +16,29 @@ class AuthState extends ChangeNotifier {
 
   AuthState({AuthRepository? authRepository})
       : _authRepository = authRepository ?? MockAuthRepository() {
-    _currentStudent = _authRepository.getCurrentStudent();
-    _currentClub = _authRepository.getCurrentClub();
-    if (_currentStudent != null) {
-      _activeRole = UserRole.student;
+    _initSession();
+  }
+
+  Future<void> _initSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final roleStr = prefs.getString('auth_role');
+      if (roleStr == 'student') {
+        _currentStudent = _authRepository.getCurrentStudent();
+        _activeRole = UserRole.student;
+      } else if (roleStr == 'club') {
+        _currentClub = _authRepository.getCurrentClub();
+        _activeRole = UserRole.club;
+      } else {
+        _currentStudent = _authRepository.getCurrentStudent();
+        if (_currentStudent != null) _activeRole = UserRole.student;
+      }
+    } catch (_) {
+      _currentStudent = _authRepository.getCurrentStudent();
+      _currentClub = _authRepository.getCurrentClub();
+      if (_currentStudent != null) _activeRole = UserRole.student;
     }
+    notifyListeners();
   }
 
   UserModel? get currentStudent => _currentStudent;
@@ -45,6 +64,9 @@ class AuthState extends ChangeNotifier {
       _currentStudent = await _authRepository.loginStudent(email, password);
       _activeRole = UserRole.student;
       _isLoading = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_role', 'student');
+      await prefs.setString('auth_user_id', _currentStudent?.id ?? '');
       notifyListeners();
       return true;
     } catch (e) {
@@ -84,6 +106,9 @@ class AuthState extends ChangeNotifier {
       );
       _activeRole = UserRole.student;
       _isLoading = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_role', 'student');
+      await prefs.setString('auth_user_id', _currentStudent?.id ?? '');
       notifyListeners();
       return true;
     } catch (e) {
@@ -104,6 +129,9 @@ class AuthState extends ChangeNotifier {
       if (club != null) {
         _currentClub = club;
         _activeRole = UserRole.club;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_role', 'club');
+        await prefs.setString('auth_club_id', club.id);
       }
       _isLoading = false;
       notifyListeners();
@@ -179,6 +207,27 @@ class AuthState extends ChangeNotifier {
       );
       _activeRole = UserRole.club;
       _isLoading = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_role', 'club');
+      await prefs.setString('auth_club_id', _currentClub?.id ?? '');
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> resetPassword(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _authRepository.resetPassword(email);
+      _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
@@ -204,6 +253,10 @@ class AuthState extends ChangeNotifier {
     _currentStudent = null;
     _currentClub = null;
     _activeRole = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_role');
+    await prefs.remove('auth_user_id');
+    await prefs.remove('auth_club_id');
     notifyListeners();
   }
 }

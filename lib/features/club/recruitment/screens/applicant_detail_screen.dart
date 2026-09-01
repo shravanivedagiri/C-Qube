@@ -126,43 +126,7 @@ class _ApplicantDetailScreenState extends State<ApplicantDetailScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Application Questionnaire Answers
-            Text('Application Questionnaire', style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
-            ...widget.application.answers.entries.map((entry) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Q: ${entry.key}',
-                      style: AppTypography.labelMedium.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondary,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      entry.value,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                        height: 1.45,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-            const SizedBox(height: 24),
 
             // Application Status Selector
             Text('Update Application Status', style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700)),

@@ -12,6 +12,7 @@ import 'package:c_qube/features/club/recruitment/screens/club_recruitment_screen
 import 'package:c_qube/features/club/recruitment/screens/club_join_requests_screen.dart';
 import 'package:c_qube/features/club/analytics/screens/club_analytics_screen.dart';
 import 'package:c_qube/features/club/profile/screens/edit_club_profile_screen.dart';
+import 'package:c_qube/state/club_state.dart';
 
 class ClubDrawer extends StatelessWidget {
   final ClubModel club;
@@ -104,10 +105,63 @@ class ClubDrawer extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.insights_rounded, color: AppColors.success),
-                  title: const Text('Databricks Analytics'),
+                  title: const Text('Analytics & Telemetry'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const ClubAnalyticsScreen()));
+                  },
+                ),
+                const Divider(),
+
+                // Recent Club Activities Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Recent Club Activities',
+                      style: AppTypography.labelSmall.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.secondary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+                Consumer<ClubState>(
+                  builder: (context, clubState, _) {
+                    final recentPosts = clubState.clubPosts.take(3).toList();
+                    if (recentPosts.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: Text(
+                          'No recent activities published yet.',
+                          style: AppTypography.bodySmall.copyWith(fontSize: 12),
+                        ),
+                      );
+                    }
+                    return Column(
+                      children: recentPosts.map((post) {
+                        return ListTile(
+                          dense: true,
+                          leading: const Icon(Icons.campaign_outlined, size: 18, color: AppColors.primaryLight),
+                          title: Text(
+                            post.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.bodyMedium.copyWith(fontSize: 13),
+                          ),
+                          subtitle: Text(
+                            post.type.name.toUpperCase(),
+                            style: AppTypography.labelSmall.copyWith(fontSize: 10, color: AppColors.secondary),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            if (onDashboardSelected != null) onDashboardSelected!();
+                          },
+                        );
+                      }).toList(),
+                    );
                   },
                 ),
                 const Divider(),
