@@ -174,13 +174,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     subtitle: _event.isOnline ? 'Access link shared upon registration' : 'Physical On-Campus Venue',
                     isDark: isDark,
                   ),
-                  const SizedBox(height: 10),
-                  _buildDetailTile(
-                    icon: Icons.stars_rounded,
-                    title: '+50 Campus Activity Points',
-                    subtitle: 'Earned automatically upon attendance confirmation',
-                    isDark: isDark,
-                  ),
                   const SizedBox(height: 24),
 
                   // Seat Availability Counter Bar

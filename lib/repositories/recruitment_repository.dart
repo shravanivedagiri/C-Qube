@@ -68,6 +68,33 @@ class MockRecruitmentRepository implements RecruitmentRepository {
         status: newStatus,
         notes: notes ?? app.notes,
       );
+
+      if (newStatus == ApplicationStatus.selected) {
+        // Add student to joined clubs
+        final studentIndex = _store.students.indexWhere((s) => s.id == app.studentId);
+        if (studentIndex != -1) {
+          final student = _store.students[studentIndex];
+          if (!student.joinedClubIds.contains(app.clubId)) {
+            final joined = List<String>.from(student.joinedClubIds)..add(app.clubId);
+            _store.students[studentIndex] = student.copyWith(joinedClubIds: joined);
+            if (_store.currentUser?.id == student.id) {
+              _store.currentUser = _store.students[studentIndex];
+            }
+          }
+        }
+        // Add student to club members list
+        final clubIndex = _store.clubs.indexWhere((c) => c.id == app.clubId);
+        if (clubIndex != -1) {
+          final club = _store.clubs[clubIndex];
+          if (!club.memberStudentIds.contains(app.studentId)) {
+            final members = List<String>.from(club.memberStudentIds)..add(app.studentId);
+            _store.clubs[clubIndex] = club.copyWith(
+              memberStudentIds: members,
+              memberCount: members.length,
+            );
+          }
+        }
+      }
     }
   }
 }

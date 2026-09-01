@@ -6,9 +6,13 @@ import 'package:c_qube/core/constants/app_typography.dart';
 import 'package:c_qube/core/utils/date_formatter.dart';
 import 'package:c_qube/models/club_model.dart';
 import 'package:c_qube/models/post_model.dart';
+import 'package:c_qube/models/recruitment_model.dart';
+import 'package:c_qube/repositories/recruitment_repository.dart';
 import 'package:c_qube/shared/widgets/tag_chip.dart';
 import 'package:c_qube/shared/widgets/event_card.dart';
 import 'package:c_qube/shared/widgets/empty_state_view.dart';
+import 'package:c_qube/shared/widgets/custom_button.dart';
+import 'package:c_qube/shared/widgets/custom_text_field.dart';
 import 'package:c_qube/state/auth_state.dart';
 import 'package:c_qube/state/student_state.dart';
 import 'package:c_qube/services/mock_data_store.dart';
@@ -32,7 +36,7 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
   void initState() {
     super.initState();
     _club = widget.club;
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -52,6 +56,7 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
 
     final store = MockDataStore();
     final clubPosts = store.posts.where((p) => p.clubId == _club.id).toList();
+    final clubDrives = store.recruitmentDrives.where((d) => d.clubId == _club.id).toList();
     final clubGallery = store.galleryItems.where((g) => g.clubId == _club.id).toList();
     final clubEvents = store.events.where((e) => e.clubId == _club.id).toList();
 
@@ -122,22 +127,13 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
                         ),
                         child: Text(isFollowing ? 'Following' : '+ Follow'),
                       ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (student != null) {
-                            studentState.toggleJoinClub(_club.id, student);
-                            setState(() {});
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isMember ? AppColors.success : AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      if (isMember) ...[
+                        const SizedBox(width: 8),
+                        const TagChip(
+                          label: 'Member ✓',
+                          color: AppColors.success,
                         ),
-                        child: Text(isMember ? 'Joined ✓' : 'Join Club'),
-                      ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -224,6 +220,7 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
                 unselectedLabelColor: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
                 tabs: const [
                   Tab(text: 'Activity'),
+                  Tab(text: 'Recruitment'),
                   Tab(text: 'Events'),
                   Tab(text: 'Gallery'),
                 ],
@@ -248,6 +245,87 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
                     itemBuilder: (context, index) {
                       final post = clubPosts[index];
                       return _buildPostCard(post, isDark, student?.id ?? '');
+                    },
+                  ),
+
+            // Tab 2: Recruitment Drives
+            clubDrives.isEmpty
+                ? const EmptyStateView(
+                    icon: Icons.campaign_outlined,
+                    title: 'No Open Recruitment Drives',
+                    description: 'This club does not currently have active recruitment drives.',
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: clubDrives.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final drive = clubDrives[index];
+                      final hasApplied = store.recruitmentApplications.any(
+                        (a) => a.recruitmentId == drive.id && a.studentId == (student?.id ?? ''),
+                      );
+
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                TagChip(
+                                  label: drive.isOpen ? 'OPEN DRIVE' : 'CLOSED',
+                                  color: drive.isOpen ? AppColors.success : AppColors.error,
+                                ),
+                                const Spacer(),
+                                Text(
+                                  'Deadline: ${DateFormatter.formatShortDate(drive.deadline)}',
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              drive.title,
+                              style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              drive.description,
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: drive.openPositions
+                                  .map((pos) => TagChip(label: pos, color: AppColors.secondary))
+                                  .toList(),
+                            ),
+                            const SizedBox(height: 16),
+                            CustomButton(
+                              text: hasApplied
+                                  ? 'Application Submitted ✓'
+                                  : (drive.isOpen ? 'Apply for Recruitment Drive' : 'Drive Closed'),
+                              variant: hasApplied ? ButtonVariant.success : ButtonVariant.primary,
+                              isDisabled: hasApplied || !drive.isOpen || student == null,
+                              onPressed: () {
+                                if (student != null) {
+                                  _showApplyModal(context, drive, student);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      );
                     },
                   ),
 
@@ -432,6 +510,124 @@ class _ClubPublicProfileScreenState extends State<ClubPublicProfileScreen>
           ),
         ],
       ),
+    );
+  }
+
+  void _showApplyModal(BuildContext context, RecruitmentDrive drive, dynamic student) {
+    String selectedPosition = drive.openPositions.isNotEmpty ? drive.openPositions.first : 'Member';
+    final questionText = drive.questions.isNotEmpty
+        ? drive.questions.first
+        : 'Why do you want to join ${_club.name}?';
+    final answerController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        final isDarkModal = Theme.of(modalContext).brightness == Brightness.dark;
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              decoration: BoxDecoration(
+                color: isDarkModal ? AppColors.darkSurface : AppColors.lightBg,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Apply — ${drive.title}',
+                            style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(modalContext),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    Text('Select Position', style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: selectedPosition,
+                      items: drive.openPositions
+                          .map((pos) => DropdownMenuItem(value: pos, child: Text(pos)))
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) setModalState(() => selectedPosition = v);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    CustomTextField(
+                      label: questionText,
+                      hintText: 'Share your background and interest...',
+                      controller: answerController,
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 24),
+
+                    CustomButton(
+                      text: 'Submit Application',
+                      variant: ButtonVariant.primary,
+                      onPressed: () async {
+                        final repo = MockRecruitmentRepository();
+                        await repo.submitApplication(
+                          RecruitmentApplication(
+                            id: 'app_${DateTime.now().millisecondsSinceEpoch}',
+                            recruitmentId: drive.id,
+                            recruitmentTitle: drive.title,
+                            clubId: drive.clubId,
+                            clubName: drive.clubName,
+                            studentId: student.id,
+                            studentName: student.name,
+                            studentEmail: student.email,
+                            studentDepartment: student.department,
+                            studentYear: student.year,
+                            positionApplied: selectedPosition,
+                            answers: {
+                              questionText: answerController.text.trim().isNotEmpty
+                                  ? answerController.text.trim()
+                                  : 'Enthusiastic about contributing to the team.',
+                            },
+                          ),
+                        );
+
+                        if (context.mounted) {
+                          Navigator.pop(modalContext);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Application submitted! Club coordinators will review your application.'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                          setState(() {});
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

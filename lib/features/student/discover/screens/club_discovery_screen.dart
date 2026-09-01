@@ -127,11 +127,6 @@ class _ClubDiscoveryScreenState extends State<ClubDiscoveryScreen> {
                             ),
                           );
                         },
-                        onJoinToggle: () {
-                          if (student != null) {
-                            studentState.toggleJoinClub(club.id, student);
-                          }
-                        },
                       );
                     },
                   ),
