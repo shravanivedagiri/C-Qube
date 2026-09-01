@@ -120,7 +120,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 context: context,
                 isDark: isDark,
                 roleTitle: 'Student',
-                subtitle: 'Discover clubs, join hackathons, find peers & earn activity points.',
+                subtitle: 'Discover clubs, join hackathons, and find peers.',
                 icon: Icons.school_rounded,
                 accentColor: AppColors.primary,
                 primaryButtonText: 'Student Login',

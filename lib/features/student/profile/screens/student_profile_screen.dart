@@ -120,66 +120,12 @@ class StudentProfileScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-
-                  // Points Banner inside card
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.warning.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.stars_rounded, color: AppColors.warning, size: 24),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${student.points} Points',
-                                  style: AppTypography.headlineSmall.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.warning,
-                                  ),
-                                ),
-                                Text(
-                                  'Level 3 Campus Ambassador',
-                                  style: AppTypography.bodySmall.copyWith(
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.warning,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            'Top 10%',
-                            style: AppTypography.labelSmall.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // 4 Stats Summary Cards
+            // Stats Summary Cards
             Row(
               children: [
                 _buildStatBox('Clubs Joined', '${student.joinedClubIds.length}', Icons.groups_rounded, AppColors.primary, isDark),
@@ -191,8 +137,6 @@ class StudentProfileScreen extends StatelessWidget {
             Row(
               children: [
                 _buildStatBox('Campus Friends', '${studentState.friends.length}', Icons.people_alt_rounded, AppColors.success, isDark),
-                const SizedBox(width: 12),
-                _buildStatBox('Badge Rank', '#4 in Dept', Icons.military_tech_rounded, AppColors.accent, isDark),
               ],
             ),
             const SizedBox(height: 24),
@@ -243,15 +187,6 @@ class StudentProfileScreen extends StatelessWidget {
               children: student.skills.map((s) => TagChip(label: s, color: AppColors.secondary)).toList(),
             ),
             const SizedBox(height: 28),
-
-            // Activity Points Timeline
-            Text('Points & Activity Timeline', style: AppTypography.headlineSmall.copyWith(fontWeight: FontWeight.w700)),
-            const SizedBox(height: 12),
-            _buildTimelineItem('+100 Pts', 'Welcome Onboarding Completed', 'Joined C-QUBE platform', isDark),
-            _buildTimelineItem('+75 Pts', 'Registered for HackCampus 2026', 'GDSC hackathon entry', isDark),
-            _buildTimelineItem('+50 Pts', 'Joined GDSC Club', 'Became an official student member', isDark),
-            _buildTimelineItem('+50 Pts', 'Joined AIRS Robotics Club', 'Joined hardware division', isDark),
-            const SizedBox(height: 32),
 
             // Logout Button
             CustomButton(
@@ -316,40 +251,6 @@ class StudentProfileScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTimelineItem(String pts, String title, String subtitle, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              pts,
-              style: AppTypography.labelSmall.copyWith(
-                color: AppColors.success,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w700)),
-                Text(subtitle, style: AppTypography.bodySmall.copyWith(color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary)),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

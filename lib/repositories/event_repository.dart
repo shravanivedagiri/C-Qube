@@ -149,7 +149,6 @@ class MockEventRepository implements EventRepository {
       }
       _store.students[studentIndex] = student.copyWith(
         registeredEventIds: registered,
-        points: isRegistered ? student.points : student.points + 75, // +75 pts for registering
       );
       if (_store.currentUser?.id == studentId) {
         _store.currentUser = _store.students[studentIndex];

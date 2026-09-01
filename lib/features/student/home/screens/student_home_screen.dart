@@ -114,49 +114,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Gamification Points Header Banner
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF3B50DF), Color(0xFF7C3AED)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.stars_rounded, color: AppColors.warning, size: 36),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Campus Reputation Level',
-                                    style: AppTypography.labelSmall.copyWith(color: Colors.white70),
-                                  ),
-                                  Text(
-                                    '${student.points} Campus Points',
-                                    style: AppTypography.headlineMedium.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Participate in events to earn rewards and badges!',
-                                    style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.85), fontSize: 11),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 8),
 
                     // Section 1: Recommended Clubs
                     _buildSectionHeader(
@@ -194,9 +152,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                                           builder: (_) => ClubPublicProfileScreen(club: club),
                                         ),
                                       );
-                                    },
-                                    onJoinToggle: () {
-                                      studentState.toggleJoinClub(club.id, student);
                                     },
                                   ),
                                 );

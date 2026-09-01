@@ -80,7 +80,7 @@ class MockAuthRepository implements AuthRepository {
       skills: skills,
       goals: goals,
       bio: bio,
-      points: 100, // Welcome bonus points
+      points: 0,
     );
     _store.students.add(newStudent);
     _store.currentUser = newStudent;

@@ -126,7 +126,6 @@ class MockClubRepository implements ClubRepository {
         }
         _store.students[studentIndex] = st.copyWith(
           joinedClubIds: joined,
-          points: isMember ? st.points : st.points + 50, // +50 points for joining club
         );
         if (_store.currentUser?.id == studentId) {
           _store.currentUser = _store.students[studentIndex];

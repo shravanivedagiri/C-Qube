@@ -20,7 +20,7 @@ class _AskGenieScreenState extends State<AskGenieScreen> {
   final List<String> _starterPrompts = [
     'What workshops are happening this week?',
     'Which coding clubs should I join for App Development?',
-    'How do I earn campus activity points?',
+    'How do I apply for club recruitment drives?',
     'Show me beginner-friendly hackathons on campus',
   ];
 

@@ -77,7 +77,7 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Welcome to C-QUBE! +100 Points awarded.'),
+            content: Text('Welcome to C-QUBE!'),
             backgroundColor: AppColors.success,
           ),
         );
@@ -284,7 +284,7 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> {
 
                 // Register Button
                 CustomButton(
-                  text: 'Complete Registration (+100 Pts)',
+                  text: 'Complete Registration',
                   isLoading: authState.isLoading,
                   onPressed: _handleRegister,
                   variant: ButtonVariant.primary,

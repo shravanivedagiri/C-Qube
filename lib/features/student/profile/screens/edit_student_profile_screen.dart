@@ -220,12 +220,6 @@ class _EditStudentProfileScreenState extends State<EditStudentProfileScreen> {
                       contentPadding: EdgeInsets.zero,
                       onChanged: (v) => setState(() => _showRegisteredEvents = v),
                     ),
-                    SwitchListTile(
-                      title: const Text('Show Campus Points & Achievements'),
-                      value: _showPoints,
-                      contentPadding: EdgeInsets.zero,
-                      onChanged: (v) => setState(() => _showPoints = v),
-                    ),
                   ],
                 ),
               ),
