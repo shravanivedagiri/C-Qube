@@ -63,6 +63,7 @@ export async function activateClubAccount(input: {
 
   const { error } = await supabaseAdmin.auth.admin.updateUserById(club.owner_id, {
     password: input.password,
+    email_confirm: true,
   });
   if (error) {
     throw new ApiError(500, `Couldn't set your password: ${error.message}`);

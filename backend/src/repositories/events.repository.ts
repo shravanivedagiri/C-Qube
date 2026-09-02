@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../config/supabase";
+import { ApiError } from "../middleware/errorHandler";
 
 export interface EventRow {
   id: string;
@@ -46,13 +47,16 @@ export async function registerStudent(eventId: string, studentId: string) {
     .from("events")
     .select("id, capacity, registration_deadline, status")
     .eq("id", eventId)
-    .single();
+    .maybeSingle();
   if (eventErr) throw eventErr;
+  if (!event) {
+    throw new ApiError(404, "This event no longer exists.");
+  }
   if (event.status !== "published") {
-    throw Object.assign(new Error("This event is not open for registration."), { status: 400 });
+    throw new ApiError(400, "This event is not open for registration.");
   }
   if (event.registration_deadline && new Date(event.registration_deadline) < new Date()) {
-    throw Object.assign(new Error("Registration has closed for this event."), { status: 400 });
+    throw new ApiError(400, "Registration has closed for this event.");
   }
   if (event.capacity != null) {
     const { count } = await supabaseAdmin
@@ -61,7 +65,7 @@ export async function registerStudent(eventId: string, studentId: string) {
       .eq("event_id", eventId)
       .eq("status", "registered");
     if ((count ?? 0) >= event.capacity) {
-      throw Object.assign(new Error("This event is full."), { status: 400 });
+      throw new ApiError(400, "This event is full.");
     }
   }
 
@@ -72,7 +76,7 @@ export async function registerStudent(eventId: string, studentId: string) {
     .single();
   if (error) {
     if (error.code === "23505") {
-      throw Object.assign(new Error("You're already registered for this event."), { status: 409 });
+      throw new ApiError(409, "You're already registered for this event.");
     }
     throw error;
   }

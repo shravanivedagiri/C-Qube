@@ -87,16 +87,22 @@ export default function ClubPublicProfilePage({ params }: { params: Promise<{ id
     <div>
       <div className="relative h-40 w-full overflow-hidden rounded-2xl border border-border bg-brand-soft sm:h-56">
         {club.banner_url && <Image src={club.banner_url} alt="" fill className="object-cover" />}
+        {/* Scrim so the name below stays legible over any banner image —
+            rendered even without a banner, so it also reads fine on the
+            plain bg-brand-soft fallback. */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
       </div>
 
       <div className="relative -mt-10 flex flex-wrap items-end justify-between gap-4 px-2 sm:-mt-12">
         <div className="flex items-end gap-4">
           <Avatar src={club.logo_url} name={club.name} size={88} className="border-4 border-background shadow-md" />
           <div className="pb-1">
-            <h1 className="font-display text-xl font-semibold sm:text-2xl">{club.name}</h1>
+            <h1 className="font-display text-xl font-semibold text-white [text-shadow:0_1px_4px_rgb(0_0_0_/_0.5)] sm:text-2xl">
+              {club.name}
+            </h1>
             <div className="mt-1 flex items-center gap-2">
               {club.category && <Badge variant="brand">{club.category}</Badge>}
-              <span className="flex items-center gap-1 text-xs text-muted">
+              <span className="flex items-center gap-1 text-xs text-white/90 [text-shadow:0_1px_3px_rgb(0_0_0_/_0.5)]">
                 <Users className="h-3.5 w-3.5" />
                 {club.member_count} members
               </span>

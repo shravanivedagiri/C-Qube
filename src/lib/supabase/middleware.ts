@@ -7,6 +7,7 @@ const STUDENT_ROUTES = [
   "/home",
   "/discover",
   "/events",
+  "/opportunities",
   "/calendar",
   "/friends",
   "/notifications",
@@ -15,6 +16,7 @@ const STUDENT_ROUTES = [
 ];
 const CLUB_ROUTES = [
   "/dashboard",
+  "/club-notifications",
   "/club-profile",
   "/gallery",
   "/club-events",

@@ -1,29 +1,20 @@
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export function RoleCard({
-  icon: Icon,
   eyebrow,
   title,
   description,
   loginHref,
   registerHref,
   registerLabel,
-  accent = "brand",
 }: {
-  icon: LucideIcon;
   eyebrow: string;
   title: string;
   description: string;
   loginHref: string;
   registerHref: string;
   registerLabel: string;
-  accent?: "brand" | "accent";
 }) {
-  const ring = accent === "brand" ? "text-brand" : "text-accent";
-  const soft = accent === "brand" ? "bg-brand-soft" : "bg-accent-soft";
-
   return (
     <div className="group relative w-full max-w-sm rounded-[1.75rem] border border-border bg-surface p-6 shadow-md transition hover:-translate-y-1 hover:shadow-lg">
       {/* punch mark, campus-ID style */}
@@ -32,11 +23,7 @@ export function RoleCard({
         className="absolute right-6 top-6 h-3 w-3 rotate-45 border border-border"
       />
 
-      <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl", soft)}>
-        <Icon className={cn("h-5 w-5", ring)} />
-      </div>
-
-      <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
         {eyebrow}
       </p>
       <h3 className="mt-1 font-display text-2xl font-semibold tracking-tight">

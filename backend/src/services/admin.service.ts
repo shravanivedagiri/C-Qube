@@ -35,11 +35,15 @@ export async function getDashboardStats() {
 
 /**
  * Approves a club registration request:
- *  1. Finds or provisions a Supabase auth account for the coordinator
- *     (created directly, with no password, if new — reused if they
- *     already have a club account). We deliberately don't rely on
- *     Supabase's invite email here: its shared SMTP has a very low
- *     send-rate limit, so an invite often silently never arrives,
+ *  1. Finds or provisions a Supabase auth account, keyed on the CLUB's
+ *     login email (not the coordinator's personal email) — every club
+ *     login/activation screen asks for and signs in with the club
+ *     email, so the auth account's identity must match that, or sign-in
+ *     can never succeed regardless of password. Created directly with
+ *     no password if new — reused if this exact club email already has
+ *     an account (e.g. a resubmitted request). We deliberately don't
+ *     rely on Supabase's invite email here: its shared SMTP has a very
+ *     low send-rate limit, so an invite often silently never arrives,
  *     leaving an approved club unable to ever log in. Instead the
  *     coordinator sets their own password afterwards via
  *     POST /auth/activate-club (see auth.routes.ts), gated on knowing
@@ -55,26 +59,26 @@ export async function approveClubRequest(requestId: string, adminId: string) {
   }
 
   let coordinatorId: string;
-  const existing = await profiles.getProfileByEmail(request.coordinator_email);
+  const existing = await profiles.getProfileByEmail(request.club_email);
 
   if (existing) {
     if (existing.role !== "club") {
       throw new ApiError(
         409,
-        "This coordinator email is already registered as a different account type."
+        "This club email is already registered as a different account type."
       );
     }
     const existingClub = await clubs.getClubByOwner(existing.id);
     if (existingClub) {
       throw new ApiError(
         409,
-        `This coordinator already manages ${existingClub.name} — one account can only manage one club.`
+        `An account for this club email already manages ${existingClub.name}.`
       );
     }
     coordinatorId = existing.id;
   } else {
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email: request.coordinator_email,
+      email: request.club_email,
       email_confirm: true,
       user_metadata: { role: "club", name: request.coordinator_name },
     });

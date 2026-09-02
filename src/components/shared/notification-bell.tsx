@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useCurrentProfile } from "@/hooks/use-current-profile";
 import { NotificationService } from "@/services/notification-service";
 
-export function NotificationBell() {
+export function NotificationBell({ href = "/notifications" }: { href?: string }) {
   const { user } = useCurrentProfile();
   const [count, setCount] = useState(0);
 
@@ -21,7 +21,7 @@ export function NotificationBell() {
 
   return (
     <Link
-      href="/notifications"
+      href={href}
       aria-label="Notifications"
       className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-foreground/70 transition hover:text-foreground hover:border-brand/40"
     >

@@ -19,6 +19,7 @@ export const STUDENT_NAV = [
   { href: "/home", label: "Home", icon: Home },
   { href: "/discover", label: "Discover", icon: Compass },
   { href: "/events", label: "Events", icon: Calendar },
+  { href: "/opportunities", label: "Recruitment", icon: UserPlus },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/friends", label: "Friends", icon: Users },
   { href: "/notifications", label: "Notifications", icon: Bell },
@@ -45,6 +46,7 @@ export const ADMIN_NAV = [
 
 export const CLUB_NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/club-notifications", label: "Notifications", icon: Bell },
   { href: "/club-profile", label: "Club Profile", icon: UserCircle },
   { href: "/club-events", label: "Events", icon: Calendar },
   { href: "/gallery", label: "Gallery", icon: ImageIcon },

@@ -1,5 +1,3 @@
-import { GraduationCap, Users2 } from "lucide-react";
-import { CampusTicker } from "@/components/shared/campus-ticker";
 import { RoleCard } from "@/components/shared/role-card";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Wordmark } from "@/components/shared/wordmark";
@@ -39,29 +37,23 @@ export default function LandingPage() {
 
         <div className="mt-12 flex w-full flex-col items-center justify-center gap-6 sm:flex-row sm:items-stretch">
           <RoleCard
-            icon={GraduationCap}
             eyebrow="For students"
             title="Student"
             description="Discover clubs, register for events, build your campus network, and track everything you're part of."
             loginHref="/auth/student/login"
             registerHref="/auth/student/register"
             registerLabel="Register"
-            accent="brand"
           />
           <RoleCard
-            icon={Users2}
             eyebrow="For clubs"
             title="Club"
             description="Run your club's presence — post updates, host events, open recruitment, and see who's engaging."
             loginHref="/auth/club/login"
             registerHref="/auth/club/register-request"
             registerLabel="Request access"
-            accent="accent"
           />
         </div>
       </main>
-
-      <CampusTicker />
 
       <footer className="px-6 py-5 text-center font-mono text-xs text-muted">
         C-QUBE — built for campus communities
