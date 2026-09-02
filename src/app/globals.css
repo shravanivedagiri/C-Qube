@@ -1,26 +1,210 @@
 @import "tailwindcss";
 
+/* =====================================================================
+   C-QUBE design tokens — warm palette
+   Cream background + white surfaces + deep-brown type + cola-maroon
+   primary accent + muted rose + soft peach. Every hex below (and every
+   shade/tint derived from one, noted inline) comes from the approved
+   warm palette — no blue/green/teal/purple/yellow anywhere in the app.
+
+   Main:      #F2EAE6 bg · #FFFFFF white · #3D2928 deep brown
+              #7A1E2C maroon · #B4726D rose · #F2D8C5 soft peach · #D99A70 peach
+   Supporting: #F3D3D0 light rose · #C09088 dusty rose
+              #F7E4D6 light peach · #E8D8D1 warm beige
+   ===================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f2eae6; /* Background */
+  --surface: #ffffff; /* White */
+  --surface-raised: #ffffff; /* White */
+  --foreground: #3d2928; /* Deep Brown */
+  --muted: #6e5d5b; /* tint of Deep Brown, lightened for secondary text (~6:1 on white) */
+  --border: #e8d8d1; /* Warm Beige */
+
+  --brand: #7a1e2c; /* Maroon / Cola Red */
+  --brand-foreground: #ffffff; /* White */
+  --brand-soft: #f2d8c5; /* Soft Peach */
+
+  --accent: #d99a70; /* Peach */
+  --accent-foreground: #3d2928; /* Deep Brown */
+  --accent-soft: #f7e4d6; /* Light Peach */
+
+  /* Social/friends accent — used where the app needs a second, cooler-
+     toned warm accent distinct from brand maroon and events peach. */
+  --social: #b4726d; /* Rose */
+  --social-soft: #f3d3d0; /* Light Rose */
+
+  /* No green/red/amber available — status colors are differentiated by
+     soft-background tint (peach/rose/beige) with consistent warm ink,
+     not by hue, per the approved palette. */
+  --success: #7a1e2c; /* Maroon */
+  --success-soft: #f2d8c5; /* Soft Peach */
+  --danger: #7a1e2c; /* Maroon */
+  --danger-soft: #f3d3d0; /* Light Rose */
+  --warning: #3d2928; /* Deep Brown */
+  --warning-soft: #f7e4d6; /* Light Peach */
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  --shadow-sm: 0 1px 2px 0 rgb(61 41 40 / 0.06);
+  --shadow-md: 0 4px 16px -4px rgb(61 41 40 / 0.12), 0 2px 4px -2px rgb(61 41 40 / 0.07);
+  --shadow-lg: 0 12px 32px -8px rgb(61 41 40 / 0.18);
+}
+
+/* Dark mode: the brief specifies one light warm palette, so dark mode is
+   the same hue family, darkened — Deep Brown as the near-black base,
+   Background cream as light text, Rose standing in for Maroon wherever
+   maroon-on-dark-brown would lose contrast (buttons stay solid maroon,
+   since white-on-maroon is unaffected by page theme). */
+:root[data-theme="dark"] {
+  --background: #3d2928; /* Deep Brown */
+  --surface: #4a3a38; /* Deep Brown, lightened ~12% */
+  --surface-raised: #55433f; /* Deep Brown, lightened ~18% */
+  --foreground: #f2eae6; /* Background cream, as light text */
+  --muted: #a19391; /* cream/brown blend for secondary text */
+  --border: #6b5654; /* Deep Brown, lightened ~35% */
+
+  --brand: #b4726d; /* Rose stands in for Maroon — contrast on dark bg */
+  --brand-foreground: #3d2928; /* Deep Brown */
+  --brand-soft: #644539; /* Peach, darkened toward the dark surface */
+
+  --accent: #d99a70; /* Peach */
+  --accent-foreground: #3d2928; /* Deep Brown */
+  --accent-soft: #55433f; /* same as surface-raised */
+
+  --social: #c09088; /* Dusty Rose */
+  --social-soft: #5a4340;
+
+  --success: #b4726d; /* Rose */
+  --success-soft: #644539;
+  --danger: #d99a70; /* Peach — reserved for the rare dark-mode danger text/icon */
+  --danger-soft: #5a4340;
+  --warning: #f2eae6; /* Background cream */
+  --warning-soft: #55433f;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.55);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-social: var(--social);
+  --color-social-soft: var(--social-soft);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+/* Smooth, restrained transitions on theme change */
+html.theme-transition,
+html.theme-transition * {
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+/* sonner's richColors ships its own green/red/blue palette by default —
+   override its CSS variables so toasts stay inside the warm palette. */
+[data-sonner-toaster] {
+  --success-bg: var(--success-soft);
+  --success-border: var(--success);
+  --success-text: var(--success);
+  --error-bg: var(--danger-soft);
+  --error-border: var(--danger);
+  --error-text: var(--danger);
+  --warning-bg: var(--warning-soft);
+  --warning-border: var(--warning);
+  --warning-text: var(--warning);
+  --info-bg: var(--brand-soft);
+  --info-border: var(--brand);
+  --info-text: var(--brand);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+/* Landing page: isometric dot-grid, marquee ticker */
+.bg-campus-grid {
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }

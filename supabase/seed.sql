@@ -1,0 +1,13 @@
+-- =====================================================================
+-- C-QUBE  |  Seed data
+-- =====================================================================
+-- Real club data (name, about, category, logo, banner) is imported from
+-- club_info.pdf via `backend/scripts/import-clubs.ts` — see
+-- `backend/scripts/README-import.md` for how to run it and exactly
+-- which fields are inferred vs. sourced from the PDF.
+--
+-- This file no longer seeds placeholder demo clubs (Coding Club, AI/ML
+-- Club, etc.) — those were removed once real club data replaced them.
+-- It's kept as a landing spot for any future non-club seed data (e.g.
+-- sample events/posts once real coordinators start posting), rather
+-- than deleted outright.
