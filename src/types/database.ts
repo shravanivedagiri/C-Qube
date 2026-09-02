@@ -132,6 +132,7 @@ export interface Database {
           profile_complete: boolean;
           account_activated: boolean;
           member_count: number;
+          profile_view_count: number;
           created_at: string;
           updated_at: string;
         },
@@ -201,6 +202,11 @@ export interface Database {
       >;
       club_follows: Table<
         { id: string; club_id: string; student_id: string; created_at: string },
+        { club_id: string; student_id: string },
+        Record<string, never>
+      >;
+      club_profile_views: Table<
+        { id: string; club_id: string; student_id: string; viewed_at: string },
         { club_id: string; student_id: string },
         Record<string, never>
       >;

@@ -103,6 +103,16 @@ export const ClubService = {
       .maybeSingle();
     return !!data;
   },
+
+  /**
+   * Logs one profile view; a trigger increments clubs.profile_view_count
+   * (see supabase/migrations/0009_club_profile_views.sql). Fire-and-forget
+   * from the club profile page — a failed insert shouldn't block viewing.
+   */
+  async recordView(clubId: string, studentId: string): Promise<void> {
+    const supabase = createClient();
+    await supabase.from("club_profile_views").insert({ club_id: clubId, student_id: studentId });
+  },
 };
 
 export type MembershipStatus = "none" | "pending" | "member" | "rejected";

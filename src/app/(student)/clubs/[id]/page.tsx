@@ -2,7 +2,7 @@
 
 import { AtSign, Globe, Mail, Users } from "lucide-react";
 import Image from "next/image";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ type GalleryItem = Database["public"]["Tables"]["gallery"]["Row"];
 
 export default function ClubPublicProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { user } = useCurrentProfile();
+  const { user, profile } = useCurrentProfile();
   const [club, setClub] = useState<Club | null>(null);
   const [posts, setPosts] = useState<PostWithClub[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
@@ -51,6 +51,19 @@ export default function ClubPublicProfilePage({ params }: { params: Promise<{ id
       setLoading(false);
     });
   }, [id, user]);
+
+  // Real-time profile view count: one row per (club, student) visit —
+  // see ClubService.recordView and supabase/migrations/0009_club_profile_views.sql.
+  // Only counts logged-in students, and once per page mount (the ref
+  // survives React StrictMode's dev-only double effect invocation).
+  const recordedViewFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!user || profile?.role !== "student") return;
+    const key = `${id}:${user.id}`;
+    if (recordedViewFor.current === key) return;
+    recordedViewFor.current = key;
+    ClubService.recordView(id, user.id);
+  }, [id, user, profile]);
 
   async function toggleFollow() {
     if (!user || !club) {
