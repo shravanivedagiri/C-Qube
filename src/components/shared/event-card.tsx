@@ -1,16 +1,20 @@
 import { Calendar, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatTime } from "@/lib/utils";
-import type { EventWithClub } from "@/services/event-service";
+import type { EventWithClub, FriendGoing } from "@/services/event-service";
 
 export function EventCard({
   event,
   registered,
+  friendsGoing,
 }: {
   event: EventWithClub;
   registered?: boolean;
+  /** Accepted friends of the current student who are registered for this event. */
+  friendsGoing?: FriendGoing[];
 }) {
   return (
     <Link
@@ -49,6 +53,20 @@ export function EventCard({
             </p>
           )}
         </div>
+        {friendsGoing && friendsGoing.length > 0 && (
+          <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
+            <div className="flex -space-x-2">
+              {friendsGoing.slice(0, 4).map((f) => (
+                <Avatar key={f.id} src={f.avatar_url} name={f.name} size={22} className="ring-2 ring-surface" />
+              ))}
+            </div>
+            <p className="text-xs font-medium text-social">
+              {friendsGoing.length === 1
+                ? `${friendsGoing[0].name} is going`
+                : `${friendsGoing.length} friends are going`}
+            </p>
+          </div>
+        )}
       </div>
     </Link>
   );

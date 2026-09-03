@@ -18,6 +18,8 @@ export type EventWithCounts = EventWithClub & {
   is_registered: boolean;
 };
 
+export type FriendGoing = { id: string; name: string; avatar_url: string | null };
+
 export const EventService = {
   async create(input: EventInsert): Promise<ServiceResult<Event>> {
     const supabase = createClient();
@@ -125,6 +127,32 @@ export const EventService = {
       .eq("student_id", studentId)
       .maybeSingle();
     return !!data;
+  },
+
+  /**
+   * Which of the caller's friends are registered for which (published,
+   * upcoming) events, keyed by event_id. Relies on the "friends read
+   * each other's registrations" RLS policy (supabase/migrations/0010) —
+   * a student can only see this for people they're actually friends
+   * with, enforced server-side, not by this query alone.
+   */
+  async friendsGoing(friendIds: string[]): Promise<ServiceResult<Record<string, FriendGoing[]>>> {
+    if (friendIds.length === 0) return { data: {}, error: null };
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("event_registrations")
+      .select("event_id, student:profiles!event_registrations_student_id_fkey(id, name, avatar_url)")
+      .in("student_id", friendIds)
+      .eq("status", "registered");
+    if (error) return { data: null, error: error.message };
+    const map: Record<string, FriendGoing[]> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const row of (data ?? []) as any[]) {
+      const student = row.student as FriendGoing | null;
+      if (!student) continue;
+      (map[row.event_id] ??= []).push(student);
+    }
+    return { data: map, error: null };
   },
 
   async myRegistrations(studentId: string): Promise<ServiceResult<EventWithClub[]>> {

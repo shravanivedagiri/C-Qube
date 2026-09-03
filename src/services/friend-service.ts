@@ -53,6 +53,15 @@ export const FriendService = {
     return { data: (data ?? []) as unknown as FriendshipWithProfiles[], error: null };
   },
 
+  /** Just the other person's profile id for each accepted friendship — for
+   *  filtering queries like "events my friends are registered for". */
+  async listFriendIds(userId: string): Promise<ServiceResult<string[]>> {
+    const { data, error } = await FriendService.listFriends(userId);
+    if (error) return { data: null, error };
+    const ids = (data ?? []).map((f) => (f.sender_id === userId ? f.receiver_id : f.sender_id));
+    return { data: ids, error: null };
+  },
+
   async listPendingReceived(userId: string): Promise<ServiceResult<FriendshipWithProfiles[]>> {
     const supabase = createClient();
     const { data, error } = await supabase

@@ -1,16 +1,18 @@
 "use client";
 
-import { Calendar, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Calendar, Search, Users } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { EventCard } from "@/components/shared/event-card";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input, Select } from "@/components/ui/input";
 import { CardSkeleton } from "@/components/ui/skeleton";
 import { useCurrentProfile } from "@/hooks/use-current-profile";
 import { EVENT_CATEGORIES } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
-import { EventService, type EventWithClub } from "@/services/event-service";
+import { EventService, type EventWithClub, type FriendGoing } from "@/services/event-service";
+import { FriendService } from "@/services/friend-service";
 
 export default function EventsPage() {
   const { user } = useCurrentProfile();
@@ -20,6 +22,10 @@ export default function EventsPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState<"date" | "name">("date");
+
+  const [friendIds, setFriendIds] = useState<string[]>([]);
+  const [friendsGoing, setFriendsGoing] = useState<Record<string, FriendGoing[]>>({});
+  const [friendsOnly, setFriendsOnly] = useState(false);
 
   useEffect(() => {
     EventService.listUpcoming().then(({ data }) => {
@@ -38,15 +44,57 @@ export default function EventsPage() {
       .then(({ data }) => setRegistered(new Set((data ?? []).map((r) => r.event_id))));
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+    FriendService.listFriendIds(user.id).then(({ data }) => setFriendIds(data ?? []));
+  }, [user]);
+
+  const refreshFriendsGoing = useCallback((ids: string[]) => {
+    EventService.friendsGoing(ids).then(({ data }) => setFriendsGoing(data ?? {}));
+  }, []);
+
+  useEffect(() => {
+    if (friendIds.length === 0) {
+      setFriendsGoing({});
+      return;
+    }
+    refreshFriendsGoing(friendIds);
+  }, [friendIds, refreshFriendsGoing]);
+
+  // Realtime: re-pull the friends-going map the moment any watched
+  // friend registers for or cancels an event, so the "Friends" filter
+  // and the per-card "N friends are going" line never go stale.
+  useEffect(() => {
+    if (friendIds.length === 0) return;
+    const supabase = createClient();
+    const channel = supabase
+      .channel("events-friends-registrations")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "event_registrations" },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { student_id?: string } | null;
+          if (row?.student_id && friendIds.includes(row.student_id)) {
+            refreshFriendsGoing(friendIds);
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [friendIds, refreshFriendsGoing]);
+
   const filtered = useMemo(() => {
     let list = events.filter((e) => {
       if (search && !e.title.toLowerCase().includes(search.toLowerCase())) return false;
       if (category && e.category !== category) return false;
+      if (friendsOnly && !friendsGoing[e.id]?.length) return false;
       return true;
     });
     if (sort === "name") list = [...list].sort((a, b) => a.title.localeCompare(b.title));
     return list;
-  }, [events, search, category, sort]);
+  }, [events, search, category, sort, friendsOnly, friendsGoing]);
 
   return (
     <div>
@@ -67,6 +115,16 @@ export default function EventsPage() {
           <option value="date">Soonest first</option>
           <option value="name">Name (A–Z)</option>
         </Select>
+        <Button
+          type="button"
+          variant={friendsOnly ? "primary" : "secondary"}
+          icon={<Users className="h-4 w-4" />}
+          onClick={() => setFriendsOnly((v) => !v)}
+          disabled={friendIds.length === 0}
+          title={friendIds.length === 0 ? "Add friends to filter by who's going" : undefined}
+        >
+          Friends
+        </Button>
       </div>
 
       {loading ? (
@@ -76,11 +134,19 @@ export default function EventsPage() {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <EmptyState icon={Calendar} title="No events match those filters" />
+        <EmptyState
+          icon={friendsOnly ? Users : Calendar}
+          title={friendsOnly ? "None of your friends are going to an upcoming event yet" : "No events match those filters"}
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((event) => (
-            <EventCard key={event.id} event={event} registered={registered.has(event.id)} />
+            <EventCard
+              key={event.id}
+              event={event}
+              registered={registered.has(event.id)}
+              friendsGoing={friendsGoing[event.id]}
+            />
           ))}
         </div>
       )}
